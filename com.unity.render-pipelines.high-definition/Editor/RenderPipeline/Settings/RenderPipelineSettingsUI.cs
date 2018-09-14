@@ -1,3 +1,5 @@
+// #define REALTIME_RAYTRACING_SUPPORT
+
 using UnityEngine.Events;
 
 namespace UnityEditor.Experimental.Rendering.HDPipeline
@@ -110,6 +112,18 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
 
             // XR 
             EditorGUILayout.PropertyField(d.xrConfig);
+
+            // Only display the support ray tracing feature if the platform supports it
+            #if REALTIME_RAYTRACING_SUPPORT
+            if(UnityEngine.SystemInfo.supportsRayTracing)
+            {
+                EditorGUILayout.PropertyField(d.supportRayTracing, _.GetContent("Support Realtime Raytracing."));
+            }
+            else
+            #endif
+            {
+                d.supportRayTracing.boolValue = false;
+            }
 
             --EditorGUI.indentLevel;
         }
