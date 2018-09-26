@@ -36,15 +36,6 @@
 //                          Light Helpers                                    //
 ///////////////////////////////////////////////////////////////////////////////
 
-// Abstraction over Light input constants
-struct LightInput
-{
-    float4  position;
-    half3   color;
-    half4   distanceAndSpotAttenuation;
-    half4   spotDirection;
-};
-
 // Abstraction over Light shading data.
 struct Light
 {
@@ -111,18 +102,6 @@ half AngleAttenuation(half3 spotDirection, half3 lightDirection, half2 spotAtten
     half SdotL = dot(spotDirection, lightDirection);
     half atten = saturate(SdotL * spotAttenuation.x + spotAttenuation.y);
     return atten * atten;
-}
-
-half4 GetLightDirectionAndAttenuation(LightInput lightInput, float3 positionWS)
-{
-    half4 directionAndAttenuation;
-    float3 posToLightVec = lightInput.position.xyz - positionWS * lightInput.position.w;
-    float distanceSqr = max(dot(posToLightVec, posToLightVec), FLT_MIN);
-
-    directionAndAttenuation.xyz = half3(posToLightVec * rsqrt(distanceSqr));
-    directionAndAttenuation.w = DistanceAttenuation(distanceSqr, lightInput.distanceAndSpotAttenuation.xy);
-    directionAndAttenuation.w *= AngleAttenuation(lightInput.spotDirection.xyz, directionAndAttenuation.xyz, lightInput.distanceAndSpotAttenuation.zw);
-    return directionAndAttenuation;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
