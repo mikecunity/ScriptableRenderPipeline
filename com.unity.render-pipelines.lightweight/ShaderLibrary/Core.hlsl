@@ -162,7 +162,7 @@ half3 MixFogColor(real3 fragColor, real3 fogColor, real fogFactor)
     // fogFactor = density*z compute at vertex
     fogFactor = saturate(exp2(-fogFactor*fogFactor));
 #endif
-    color = lerp(fogColor, fragColor, fogFactor);
+    fragColor = lerp(fogColor, fragColor, fogFactor);
 #endif
 
     return fragColor;
