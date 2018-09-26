@@ -176,9 +176,7 @@ void ScreenSpaceReflectionsTracing(uint2 positionSS : SV_DispatchThreadID)
         rayPos.xy += raySign.xy * satEdgeDist;
 
         int2 mipCoord  = (int2)rayPos.xy >> mipLevel;
-        int2 mipOffset = int2(_SsrDepthPyramidMipLevelOffsets[(mipLevel + 0) >> 1].x,
-                              _SsrDepthPyramidMipLevelOffsets[(mipLevel + 1) >> 1].y);
-
+        int2 mipOffset = _SsrDepthPyramidMipLevelOffsets[mipLevel]; 
         // Bounds define 4 faces of a cube:
         // 2 walls in front of the ray, and a floor and a base below it.
         float4 bounds;

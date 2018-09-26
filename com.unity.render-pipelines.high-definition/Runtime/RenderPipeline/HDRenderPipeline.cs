@@ -300,7 +300,7 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
 #endif
             m_DebugScreenSpaceTracingData = new ComputeBuffer(1, System.Runtime.InteropServices.Marshal.SizeOf(typeof(ScreenSpaceTracingDebug)));
 
-            m_DepthPyramidMipLevelOffsetsBuffer = new ComputeBuffer(8, sizeof(int) * 2);
+            m_DepthPyramidMipLevelOffsetsBuffer = new ComputeBuffer(15, sizeof(int) * 2);
 
             InitializeRenderTextures();
 
