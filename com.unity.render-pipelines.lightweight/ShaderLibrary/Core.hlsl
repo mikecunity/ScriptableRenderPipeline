@@ -191,7 +191,7 @@ real ComputeFogFactor(float z)
 #endif
 }
 
-void ApplyFogColor(inout real3 color, real3 fogColor, real fogFactor)
+half3 MixFogColor(real3 fragColor, real3 fogColor, real fogFactor)
 {
 #if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2)
 #if defined(FOG_EXP)
@@ -203,13 +203,15 @@ void ApplyFogColor(inout real3 color, real3 fogColor, real fogFactor)
     // fogFactor = density*z compute at vertex
     fogFactor = saturate(exp2(-fogFactor*fogFactor));
 #endif
-    color = lerp(fogColor, color, fogFactor);
+    color = lerp(fogColor, fragColor, fogFactor);
 #endif
+
+    return fragColor;
 }
 
-void ApplyFog(inout real3 color, real fogFactor)
+half3 MixFog(real3 fragColor, real fogFactor)
 {
-    ApplyFogColor(color, unity_FogColor.rgb, fogFactor);
+    return MixFogColor(fragColor, unity_FogColor.rgb, fogFactor);
 }
 
 // Stereo-related bits

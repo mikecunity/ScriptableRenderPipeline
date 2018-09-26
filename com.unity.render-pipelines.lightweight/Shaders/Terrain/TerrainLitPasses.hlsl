@@ -123,9 +123,9 @@ void SplatmapFinalColor(inout half4 color, half fogCoord)
 {
     color.rgb *= color.a;
     #ifdef TERRAIN_SPLAT_ADDPASS
-        ApplyFogColor(color.rgb, half3(0,0,0), fogCoord);
+        color.rgb = MixFogColor(color.rgb, half3(0,0,0), fogCoord);
     #else
-        ApplyFog(color.rgb, fogCoord);
+        color.rgb = MixFog(color.rgb, fogCoord);
     #endif
 }
 

@@ -130,7 +130,7 @@ half4 LitPassFragment(Varyings input) : SV_Target
 
     half4 color = LightweightFragmentPBR(inputData, surfaceData.albedo, surfaceData.metallic, surfaceData.specular, surfaceData.smoothness, surfaceData.occlusion, surfaceData.emission, surfaceData.alpha);
 
-    ApplyFog(color.rgb, inputData.fogCoord);
+    color.rgb = MixFog(color.rgb, inputData.fogCoord);
     return color;
 }
 

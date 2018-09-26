@@ -128,7 +128,7 @@ Shader "Lightweight Render Pipeline/Unlit"
     #endif
                 color *= SAMPLE_GI(input.lightmapUV, input.vertexSH, normalWS);
 #endif
-                ApplyFog(color, input.uv0AndFogCoord.z);
+                color = MixFog(color, input.uv0AndFogCoord.z);
 
                 return half4(color, alpha);
             }
