@@ -183,11 +183,11 @@ VertexOutput SplatmapVert(VertexInput v)
 
 #if defined(_NORMALMAP) && !defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
     float4 vertexTangent = float4(cross(float3(0, 0, 1), v.normal), 1.0);
-    VertexTBN vertexTBN = GetVertexTBN(v.normal, vertexTangent);
+    VertexNormalInputs normalInput = GetVertexNormalInputs(v.normal, vertexTangent);
 
-    o.normal = half4(vertexTBN.normalWS, viewDir.x);
-    o.tangent = half4(vertexTBN.tangentWS, viewDir.y);
-    o.binormal = half4(vertexTBN.binormalWS, viewDir.z);
+    o.normal = half4(normalInput.normalWS, viewDir.x);
+    o.tangent = half4(normalInput.tangentWS, viewDir.y);
+    o.binormal = half4(normalInput.binormalWS, viewDir.z);
 #else
     o.normal = TransformObjectToWorldNormal(v.normal);
     o.viewDir = viewDir;

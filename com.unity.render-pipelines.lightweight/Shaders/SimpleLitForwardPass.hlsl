@@ -77,7 +77,7 @@ Varyings LitPassVertexSimple(Attributes input)
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
     VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
-    VertexTBN vertexTBN = GetVertexTBN(input.normalOS, input.tangentOS);
+    VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
     half3 viewDir = VertexViewDirWS(GetCameraPositionWS() - vertexInput.positionWS);
     half3 vertexLight = VertexLighting(vertexInput.positionWS, output.normal.xyz);
     half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
@@ -88,11 +88,11 @@ Varyings LitPassVertexSimple(Attributes input)
     output.positionCS = vertexInput.positionCS;
 
 #ifdef _NORMALMAP
-    output.normal = half4(vertexTBN.normalWS, viewDir.x);
-    output.tangent = half4(vertexTBN.tangentWS, viewDir.y);
-    output.binormal = half4(vertexTBN.binormalWS, viewDir.z);
+    output.normal = half4(normalInput.normalWS, viewDir.x);
+    output.tangent = half4(normalInput.tangentWS, viewDir.y);
+    output.binormal = half4(normalInput.binormalWS, viewDir.z);
 #else
-    output.normal = vertexTBN.normalWS;
+    output.normal = normalInput.normalWS;
     output.viewDir = viewDir;
 #endif
 

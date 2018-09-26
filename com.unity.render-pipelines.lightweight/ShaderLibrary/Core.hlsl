@@ -24,7 +24,7 @@ struct VertexPositionInputs
     float4 positionCS; // Homogeneous clip space position
 };
 
-struct VertexTBN
+struct VertexNormalInputs
 {
     real3 tangentWS;
     real3 binormalWS;
@@ -40,18 +40,18 @@ VertexPositionInputs GetVertexPositionInputs(float3 positionOS)
     return input;
 }
 
-VertexTBN GetVertexTBN(float3 normalOS)
+VertexNormalInputs GetVertexNormalInputs(float3 normalOS)
 {
-    VertexTBN tbn;
+    VertexNormalInputs tbn;
     tbn.tangentWS = real3(1.0, 0.0, 0.0);
     tbn.binormalWS = real3(0.0, 1.0, 0.0);
     tbn.normalWS = TransformObjectToWorldNormal(normalOS);
     return tbn;
 }
 
-VertexTBN GetVertexTBN(float3 normalOS, float4 tangentOS)
+VertexNormalInputs GetVertexNormalInputs(float3 normalOS, float4 tangentOS)
 {
-    VertexTBN tbn;
+    VertexNormalInputs tbn;
 
     // mikkts space compliant. only normalize when extracting normal at frag.
     real sign = tangentOS.w * GetOddNegativeScale();

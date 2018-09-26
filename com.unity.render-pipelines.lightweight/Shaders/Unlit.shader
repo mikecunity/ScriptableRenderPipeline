@@ -93,11 +93,11 @@ Shader "Lightweight Render Pipeline/Unlit"
                 output.uv0AndFogCoord.z = ComputeFogFactor(vertexInput.positionCS.z);
 
 #if _SAMPLE_GI
-                VertexTBN vertexTBN = GetVertexTBN(input.normalOS, input.tangentOS);
-                output.normal = vertexTBN.normalWS;
+                VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
+                output.normal = normalInput.normalWS;
 #ifdef _NORMALMAP
-                output.tangent = vertexTBN.tangentWS;
-                output.binormal = vertexTBN.binormalWS;
+                output.tangent = normalInput.tangentWS;
+                output.binormal = normalInput.binormalWS;
 #endif
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
                 OUTPUT_SH(output.normal, output.vertexSH);

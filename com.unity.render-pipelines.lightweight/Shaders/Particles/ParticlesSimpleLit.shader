@@ -91,16 +91,16 @@ Shader "Lightweight Render Pipeline/Particles/Simple Lit"
                 VaryingsParticle output;
 
                 VertexPositionInputs vertexInput = GetVertexPositionInputs(input.vertex.xyz);
-                VertexTBN vertexTBN = GetVertexTBN(input.normal
+                VertexNormalInputs normalInput = GetVertexNormalInputs(input.normal
 #if defined(_NORMALMAP)
                     , input.tangent
 #endif
                 );
 
-                output.normal = vertexTBN.normalWS;
+                output.normal = normalInput.normalWS;
 #ifdef _NORMALMAP
-                output.tangent = vertexTBN.tangentWS;
-                output.binormal = vertexTBN.binormalWS;
+                output.tangent = normalInput.tangentWS;
+                output.binormal = normalInput.binormalWS;
 #endif
 
                 output.posWS.xyz = vertexInput.positionWS.xyz;
