@@ -88,7 +88,7 @@ Shader "Lightweight Render Pipeline/Particles/Lit"
                 output.normal = normalInput.normalWS;
 #ifdef _NORMAL_MAP
                 output.tangent = normalInput.tangentWS;
-                output.binormal = normalInput.binormalWS;
+                output.bitangent = normalInput.bitangentWS;
 #endif
 
                 output.posWS.xyz = vertexInput.positionWS;

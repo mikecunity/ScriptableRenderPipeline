@@ -70,7 +70,7 @@ Shader "Lightweight Render Pipeline/Unlit"
                 half3 normal                    : TEXCOORD2;
     #if _NORMALMAP
                 half3 tangent                   : TEXCOORD3;
-                half3 binormal                  : TEXCOORD4;
+                half3 bitangent                  : TEXCOORD4;
     #endif
 #endif
                 float4 vertex : SV_POSITION;
@@ -97,7 +97,7 @@ Shader "Lightweight Render Pipeline/Unlit"
                 output.normal = normalInput.normalWS;
 #ifdef _NORMALMAP
                 output.tangent = normalInput.tangentWS;
-                output.binormal = normalInput.binormalWS;
+                output.bitangent = normalInput.bitangentWS;
 #endif
                 OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
                 OUTPUT_SH(output.normal, output.vertexSH);
@@ -123,7 +123,7 @@ Shader "Lightweight Render Pipeline/Unlit"
 #if _SAMPLE_GI
     #if _NORMALMAP
                 half3 normalWS = TransformTangentToWorld(surfaceData.normalTS,
-                    half3x3(input.tangent, input.binormal, input.normal));
+                    half3x3(input.tangent, input.bitangent, input.normal));
     #else
                 half3 normalWS = input.normal;
     #endif

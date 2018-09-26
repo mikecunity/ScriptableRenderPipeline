@@ -147,7 +147,7 @@ struct VaryingsParticle
     float2 texcoord                 : TEXCOORD0;
 #ifdef _NORMALMAP
     half3 tangent                   : TEXCOORD1;
-    half3 binormal                  : TEXCOORD2;
+    half3 bitangent                  : TEXCOORD2;
     half3 normal                    : TEXCOORD3;
 #else
     half3 normal                    : TEXCOORD1;
@@ -250,7 +250,7 @@ void InitializeInputData(VaryingsParticle input, half3 normalTS, out InputData o
     output.positionWS = input.posWS.xyz;
 
 #if _NORMALMAP
-    output.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangent, input.binormal, input.normal));
+    output.normalWS = TransformTangentToWorld(normalTS, half3x3(input.tangent, input.bitangent, input.normal));
 #else
     output.normalWS = input.normal;
 #endif

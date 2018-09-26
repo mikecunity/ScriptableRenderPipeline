@@ -27,7 +27,7 @@ struct VertexPositionInputs
 struct VertexNormalInputs
 {
     real3 tangentWS;
-    real3 binormalWS;
+    real3 bitangentWS;
     real3 normalWS;
 };
 
@@ -44,7 +44,7 @@ VertexNormalInputs GetVertexNormalInputs(float3 normalOS)
 {
     VertexNormalInputs tbn;
     tbn.tangentWS = real3(1.0, 0.0, 0.0);
-    tbn.binormalWS = real3(0.0, 1.0, 0.0);
+    tbn.bitangentWS = real3(0.0, 1.0, 0.0);
     tbn.normalWS = TransformObjectToWorldNormal(normalOS);
     return tbn;
 }
@@ -57,7 +57,7 @@ VertexNormalInputs GetVertexNormalInputs(float3 normalOS, float4 tangentOS)
     real sign = tangentOS.w * GetOddNegativeScale();
     tbn.normalWS = TransformObjectToWorldNormal(normalOS);
     tbn.tangentWS = TransformObjectToWorldDir(tangentOS.xyz);
-    tbn.binormalWS = cross(tbn.normalWS, tbn.tangentWS) * sign;
+    tbn.bitangentWS = cross(tbn.normalWS, tbn.tangentWS) * sign;
     return tbn;
 }
 

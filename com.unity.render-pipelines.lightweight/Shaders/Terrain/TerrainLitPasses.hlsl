@@ -38,7 +38,7 @@ struct VertexOutput
 #if defined(_NORMALMAP) && !defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
     half4 normal                    : TEXCOORD3;    // xyz: normal, w: viewDir.x
     half4 tangent                   : TEXCOORD4;    // xyz: tangent, w: viewDir.y
-    half4 binormal                  : TEXCOORD5;    // xyz: binormal, w: viewDir.z
+    half4 bitangent                  : TEXCOORD5;    // xyz: bitangent, w: viewDir.z
 #else
     half3 normal                    : TEXCOORD3;
     half3 viewDir                   : TEXCOORD4;
@@ -57,8 +57,8 @@ void InitializeInputData(VertexOutput IN, half3 normalTS, out InputData input)
     input.positionWS = IN.positionWS;
 
 #if defined(_NORMALMAP) && !defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
-    half3 viewDir = half3(IN.normal.w, IN.tangent.w, IN.binormal.w);
-    input.normalWS = TransformTangentToWorld(normalTS, half3x3(IN.tangent.xyz, IN.binormal.xyz, IN.normal.xyz));
+    half3 viewDir = half3(IN.normal.w, IN.tangent.w, IN.bitangent.w);
+    input.normalWS = TransformTangentToWorld(normalTS, half3x3(IN.tangent.xyz, IN.bitangent.xyz, IN.normal.xyz));
 #elif defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
     half3 viewDir = IN.viewDir;
     float2 sampleCoords = (IN.uvMainAndLM.xy / _TerrainHeightmapRecipSize.zw + 0.5f) * _TerrainHeightmapRecipSize.xy;
@@ -189,7 +189,7 @@ VertexOutput SplatmapVert(VertexInput v)
 
     o.normal = half4(normalInput.normalWS, viewDir.x);
     o.tangent = half4(normalInput.tangentWS, viewDir.y);
-    o.binormal = half4(normalInput.binormalWS, viewDir.z);
+    o.bitangent = half4(normalInput.bitangentWS, viewDir.z);
 #else
     o.normal = TransformObjectToWorldNormal(v.normal);
     o.viewDir = viewDir;

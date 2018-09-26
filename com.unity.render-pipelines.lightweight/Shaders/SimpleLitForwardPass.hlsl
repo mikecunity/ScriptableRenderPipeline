@@ -23,7 +23,7 @@ struct Varyings
 #ifdef _NORMALMAP
     half4 normal                    : TEXCOORD3;    // xyz: normal, w: viewDir.x
     half4 tangent                   : TEXCOORD4;    // xyz: tangent, w: viewDir.y
-    half4 binormal                  : TEXCOORD5;    // xyz: binormal, w: viewDir.z
+    half4 bitangent                  : TEXCOORD5;    // xyz: bitangent, w: viewDir.z
 #else
     half3  normal                   : TEXCOORD3;
     half3 viewDir                   : TEXCOORD4;
@@ -45,9 +45,9 @@ void InitializeInputData(Varyings input, half3 normalTS, out InputData inputData
     inputData.positionWS = input.posWSShininess.xyz;
 
 #ifdef _NORMALMAP
-    half3 viewDir = half3(input.normal.w, input.tangent.w, input.binormal.w);
+    half3 viewDir = half3(input.normal.w, input.tangent.w, input.bitangent.w);
     inputData.normalWS = TransformTangentToWorld(normalTS,
-        half3x3(input.tangent.xyz, input.binormal.xyz, input.normal.xyz));
+        half3x3(input.tangent.xyz, input.bitangent.xyz, input.normal.xyz));
 #else
     half3 viewDir = input.viewDir;
     inputData.normalWS = input.normal;
@@ -93,7 +93,7 @@ Varyings LitPassVertexSimple(Attributes input)
 #ifdef _NORMALMAP
     output.normal = half4(normalInput.normalWS, viewDir.x);
     output.tangent = half4(normalInput.tangentWS, viewDir.y);
-    output.binormal = half4(normalInput.binormalWS, viewDir.z);
+    output.bitangent = half4(normalInput.bitangentWS, viewDir.z);
 #else
     output.normal = normalInput.normalWS;
     output.viewDir = viewDir;
