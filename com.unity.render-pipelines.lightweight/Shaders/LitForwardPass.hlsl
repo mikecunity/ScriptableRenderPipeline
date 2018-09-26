@@ -52,11 +52,14 @@ void InitializeInputData(Varyings input, half3 normalTS, out InputData inputData
 
 #ifdef _NORMALMAP
     half3 viewDirWS = half3(input.normalWS.w, input.tangentWS.w, input.binormalWS.w);
-    inputData.normalWS = TangentToWorldNormal(normalTS, input.tangentWS.xyz, input.binormalWS.xyz, input.normalWS.xyz);
+    inputData.normalWS = TransformTangentToWorld(normalTS,
+        half3x3(input.tangentWS.xyz, input.binormalWS.xyz, input.normalWS.xyz));
 #else
     half3 viewDirWS = input.viewDirWS;
-    inputData.normalWS = FragmentNormalWS(input.normalWS);
+    inputData.normalWS = input.normalWS;
 #endif
+
+    inputData.normalWS = FragmentNormalWS(inputData.normalWS);
 
     inputData.viewDirectionWS = FragmentViewDirWS(viewDirWS);
 #if defined(_MAIN_LIGHT_SHADOWS) && !defined(_RECEIVE_SHADOWS_OFF)

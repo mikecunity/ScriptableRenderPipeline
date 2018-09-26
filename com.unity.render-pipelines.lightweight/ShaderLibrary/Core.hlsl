@@ -144,12 +144,6 @@ real3 VertexViewDirWS(real3 viewDir)
 #endif
 }
 
-real3 TangentToWorldNormal(real3 normalTangent, real3 tangent, real3 binormal, real3 normal)
-{
-    real3x3 tangentToWorld = real3x3(tangent, binormal, normal);
-    return FragmentNormalWS(mul(normalTangent, tangentToWorld));
-}
-
 // TODO: A similar function should be already available in SRP lib on master. Use that instead
 float4 ComputeScreenPos(float4 positionCS)
 {

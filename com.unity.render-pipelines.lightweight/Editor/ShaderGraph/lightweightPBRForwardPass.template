@@ -126,7 +126,7 @@ ${PixelShaderSurfaceRemap}
 		inputData.positionWS = WorldSpacePosition;
 
 #ifdef _NORMALMAP
-	    inputData.normalWS = TangentToWorldNormal(Normal, WorldSpaceTangent, WorldSpaceBiTangent, WorldSpaceNormal);
+	    inputData.normalWS = normalize(TransformTangentToWorld(Normal, half3x3(WorldSpaceTangent, WorldSpaceBiTangent, WorldSpaceNormal)));
 #else
     #if !SHADER_HINT_NICE_QUALITY
         inputData.normalWS = WorldSpaceNormal;

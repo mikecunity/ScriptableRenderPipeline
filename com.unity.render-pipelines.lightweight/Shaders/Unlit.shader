@@ -122,10 +122,12 @@ Shader "Lightweight Render Pipeline/Unlit"
 
 #if _SAMPLE_GI
     #if _NORMALMAP
-                half3 normalWS = TangentToWorldNormal(surfaceData.normalTS, input.tangent, input.binormal, input.normal);
+                half3 normalWS = TransformTangentToWorld(surfaceData.normalTS,
+                    half3x3(input.tangent, input.binormal, input.normal));
     #else
-                half3 normalWS = normalize(input.normal);
+                half3 normalWS = input.normal;
     #endif
+                normalWS = FragmentNormalWS(normalWS);
                 color *= SAMPLE_GI(input.lightmapUV, input.vertexSH, normalWS);
 #endif
                 color = MixFog(color, input.uv0AndFogCoord.z);
