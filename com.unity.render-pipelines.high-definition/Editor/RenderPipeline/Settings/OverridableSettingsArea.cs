@@ -18,6 +18,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             public Func<bool> enabler;
             public object defaultValue;
             public int indent;
+            public bool forceOverride;
             public bool enabled { get { return enabler == null || enabler(); } }
         }
         private List<Field> fields;
@@ -35,11 +36,11 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
         /// <param name="enabler">The enabler will be used to check if this field could be overrided. If null or have a return value at true, it will be overrided.</param>
         /// <param name="defaultValue">The value to display when the property is not overrided. If null, use the actual value of it.</param>
         /// <param name="indent">Add this value number of indent when drawing this field.</param>
-        public void Add(SerializedProperty property, GUIContent content, Func<bool> getter, Action<bool> setter, Func<bool> enabler = null, object defaultValue = null, int indent = 0)
+        public void Add(SerializedProperty property, GUIContent content, Func<bool> getter, Action<bool> setter, Func<bool> enabler = null, object defaultValue = null, int indent = 0, bool forceOverride = false)
         {
             if (fields == null)
                 fields = new List<Field>();
-            fields.Add(new Field { property = property, content = content, getter = getter, setter = setter, enabler = enabler, defaultValue = defaultValue, indent = indent });
+            fields.Add(new Field { property = property, content = content, getter = getter, setter = setter, enabler = enabler, defaultValue = defaultValue, indent = indent, forceOverride = forceOverride });
         }
 
         public void Draw(bool withOverride)
@@ -72,6 +73,7 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                 }
             }
             bool enabled = field.enabled;
+            withOverride |= field.forceOverride;
             withOverride &= enabled;
             bool shouldBeDisabled = withOverride || !enabled;
             using (new EditorGUILayout.HorizontalScope())
@@ -119,36 +121,44 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
 
         void DrawDefaultValue(Field field)
         {
-            switch (field.property.propertyType)
+            if (field.defaultValue is GUIContent)
             {
-                case SerializedPropertyType.String:
-                    EditorGUILayout.TextField(field.content, (string)field.defaultValue);
-                    break;
-                case SerializedPropertyType.Boolean:
-                    EditorGUILayout.Toggle(field.content, (bool)field.defaultValue);
-                    break;
-                case SerializedPropertyType.Integer:
-                    EditorGUILayout.IntField(field.content, (int)field.defaultValue);
-                    break;
-                case SerializedPropertyType.Float:
-                    EditorGUILayout.FloatField(field.content, (float)field.defaultValue);
-                    break;
-                case SerializedPropertyType.Color:
-                    EditorGUILayout.ColorField(field.content, (Color)field.defaultValue);
-                    break;
-                case SerializedPropertyType.Enum:
-                    EditorGUILayout.EnumPopup(field.content, (Enum)field.defaultValue);
-                    break;
-                case SerializedPropertyType.LayerMask:
-                    EditorGUILayout.MaskField(field.content, (LayerMask)field.defaultValue, GraphicsSettings.renderPipelineAsset.GetRenderingLayerMaskNames());
-                    break;
-                case SerializedPropertyType.ObjectReference:
-                    EditorGUILayout.ObjectField(field.content, (UnityEngine.Object)field.defaultValue, field.defaultValue.GetType(), true);
-                    break;
-                default:
-                    EditorGUILayout.LabelField(field.content, new GUIContent("Unsupported type"));
-                    Debug.LogError("Unsupported format " + field.property.propertyType + " in OverridableSettingsArea.cs. Please add it!");
-                    break;
+                //replacing value by a text
+                EditorGUILayout.LabelField(field.content, (GUIContent)field.defaultValue);
+            }
+            else
+            {
+                switch (field.property.propertyType)
+                {
+                    case SerializedPropertyType.String:
+                        EditorGUILayout.TextField(field.content, (string)field.defaultValue);
+                        break;
+                    case SerializedPropertyType.Boolean:
+                        EditorGUILayout.Toggle(field.content, (bool)field.defaultValue);
+                        break;
+                    case SerializedPropertyType.Integer:
+                        EditorGUILayout.IntField(field.content, (int)field.defaultValue);
+                        break;
+                    case SerializedPropertyType.Float:
+                        EditorGUILayout.FloatField(field.content, (float)field.defaultValue);
+                        break;
+                    case SerializedPropertyType.Color:
+                        EditorGUILayout.ColorField(field.content, (Color)field.defaultValue);
+                        break;
+                    case SerializedPropertyType.Enum:
+                        EditorGUILayout.EnumPopup(field.content, (Enum)field.defaultValue);
+                        break;
+                    case SerializedPropertyType.LayerMask:
+                        EditorGUILayout.MaskField(field.content, (LayerMask)field.defaultValue, GraphicsSettings.renderPipelineAsset.GetRenderingLayerMaskNames());
+                        break;
+                    case SerializedPropertyType.ObjectReference:
+                        EditorGUILayout.ObjectField(field.content, (UnityEngine.Object)field.defaultValue, field.defaultValue.GetType(), true);
+                        break;
+                    default:
+                        EditorGUILayout.LabelField(field.content, new GUIContent("Unsupported type"));
+                        Debug.LogError("Unsupported format " + field.property.propertyType + " in OverridableSettingsArea.cs. Please add it!");
+                        break;
+                }
             }
         }
 

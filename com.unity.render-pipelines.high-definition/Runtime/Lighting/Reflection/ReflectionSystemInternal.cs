@@ -392,16 +392,36 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline.Internal
                 out worldToCamera, out projection,
                 out capturePosition, out captureRotation, viewerCamera);
 
+            camera.clearFlags = clearFlags;
+            camera.backgroundColor = backgroundColor;
+            camera.aspect = aspect;
+
+            additionalData.backgroundColorHDR = probe.captureSettings.backgroundColorHDR;
+            additionalData.clearColorMode = probe.captureSettings.clearColorMode;
+            additionalData.clearDepth = probe.captureSettings.clearDepth;
+            camera.cullingMask = probe.captureSettings.cullingMask;
+            additionalData.volumeLayerMask = probe.captureSettings.volumeLayerMask;
+            additionalData.volumeAnchorOverride = viewerCamera != null ? viewerCamera.transform : probe.captureSettings.volumeAnchorOverride;
+            camera.useOcclusionCulling = probe.captureSettings.useOcclusionCulling;
+            camera.orthographic = probe.captureSettings.projection == CameraProjection.Orthographic;
             camera.farClipPlane = farClipPlane;
             camera.nearClipPlane = nearClipPlane;
             camera.fieldOfView = fov;
-            camera.aspect = aspect;
-            camera.clearFlags = clearFlags;
-            camera.backgroundColor = camera.backgroundColor;
+            camera.orthographicSize = probe.captureSettings.orthographicSize;
+
+            //additionalData.aperture = additional.captureSettings.aperture;
+            //additionalData.shutterspeed = additional.captureSettings.shutterspeed;
+            //additionalData.iso = additional.captureSettings.iso;
+
+            additionalData.renderingPath = probe.captureSettings.renderingPath;
+
+            HDRenderPipelineAsset hdrp = GraphicsSettings.renderPipelineAsset as HDRenderPipelineAsset;
+            hdrp.GetFrameSettings().CopyTo(additionalData.GetFrameSettings());
+            if (probe.captureSettings.renderingPath == HDAdditionalCameraData.RenderingPath.Custom)
+                probe.frameSettings.CopyTo(additionalData.GetFrameSettings()); //TODO: only override what needed
+            
             camera.projectionMatrix = projection;
             camera.worldToCameraMatrix = worldToCamera;
-            
-            additionalData.volumeAnchorOverride = viewerCamera != null ? viewerCamera.transform : null;
 
             var ctr = camera.transform;
             ctr.position = capturePosition;
@@ -494,11 +514,11 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline.Internal
 
         static void CalculateMirroredCaptureCameraProperties(PlanarReflectionProbe probe, Camera viewerCamera, out float nearClipPlane, out float farClipPlane, out float aspect, out float fov, out CameraClearFlags clearFlags, out Color backgroundColor, out Matrix4x4 worldToCamera, out Matrix4x4 projection, out Vector3 capturePosition, out Quaternion captureRotation)
         {
-            nearClipPlane = viewerCamera.nearClipPlane;
-            farClipPlane = viewerCamera.farClipPlane;
+            nearClipPlane = probe.captureSettings.nearClipPlane;
+            farClipPlane = probe.captureSettings.farClipPlane;
             aspect = 1;
-            fov = probe.overrideFieldOfView
-                ? probe.fieldOfViewOverride
+            fov = (probe.captureSettings.overrides & CaptureSettingsOverrides.FieldOfview) > 0
+                ? probe.captureSettings.fieldOfView
                 : Mathf.Max(viewerCamera.fieldOfView, viewerCamera.fieldOfView * viewerCamera.aspect);
             clearFlags = viewerCamera.clearFlags;
             backgroundColor = viewerCamera.backgroundColor;
@@ -508,8 +528,17 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline.Internal
             worldToCamera = worldToCapture * reflectionMatrix;
 
             var clipPlane = GeometryUtils.CameraSpacePlane(worldToCamera, probe.captureMirrorPlanePosition, probe.captureMirrorPlaneNormal);
-            var sourceProj = Matrix4x4.Perspective(fov, aspect, nearClipPlane, farClipPlane);
-            projection = GeometryUtils.CalculateObliqueMatrix(sourceProj, clipPlane);
+
+            //not supported at the moment
+            //if(probe.captureSettings.projection == CameraProjection.Perspective)
+            //{
+                var sourceProj = Matrix4x4.Perspective(fov, aspect, nearClipPlane, farClipPlane);
+                projection = GeometryUtils.CalculateObliqueMatrix(sourceProj, clipPlane);
+            //}
+            //else
+            //{
+            //    projection = Matrix4x4.Ortho(probe.captureSettings.orthographicSize, probe.captureSettings.orthographicSize, probe.captureSettings.orthographicSize, probe.captureSettings.orthographicSize, nearClipPlane, farClipPlane);
+            //}
 
             capturePosition = reflectionMatrix.MultiplyPoint(viewerCamera.transform.position);
 

@@ -24,7 +24,8 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
         static readonly GUIContent projectionContent = CoreEditorUtils.GetContent("Projection");
         static readonly GUIContent nearClipPlaneContent = CoreEditorUtils.GetContent("Near Clip Plane");
         static readonly GUIContent farClipPlaneContent = CoreEditorUtils.GetContent("Far Clip Plane");
-        static readonly GUIContent fieldOfviewContent = CoreEditorUtils.GetContent("Field Of View");
+        static readonly GUIContent fieldOfViewContent = CoreEditorUtils.GetContent("Field Of View");
+        static readonly GUIContent fieldOfViewDefault = CoreEditorUtils.GetContent("Automatic|Computed depending on point of view");
         static readonly GUIContent orthographicSizeContent = CoreEditorUtils.GetContent("Size");
 
         static readonly GUIContent renderingPathContent = CoreEditorUtils.GetContent("Rendering Path");
@@ -60,12 +61,15 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
             area.Add(p.volumeLayerMask, volumeLayerMaskContent, () => p.overridesVolumeLayerMask, a => p.overridesVolumeLayerMask = a);
             area.Add(p.volumeAnchorOverride, volumeAnchorOverrideContent, () => p.overridesVolumeAnchorOverride, a => p.overridesVolumeAnchorOverride = a);
             area.Add(p.useOcclusionCulling, useOcclusionCullingContent, () => p.overridesUseOcclusionCulling, a => p.overridesUseOcclusionCulling = a);
-            area.Add(p.projection, projectionContent, () => p.overridesProjection, a => p.overridesProjection = a);
-            area.Add(p.nearClipPlane, nearClipPlaneContent, () => p.overridesNearClip, a => p.overridesNearClip = a);
-            area.Add(p.farClipPlane, farClipPlaneContent, () => p.overridesFarClip, a => p.overridesFarClip = a);
+
+            //disabling not well supported feature at the moment
+            area.Add(p.projection, projectionContent, () => p.overridesProjection, a => p.overridesProjection = a, () => false);
+            area.Add(p.nearClipPlane, nearClipPlaneContent, () => p.overridesNearClip, a => p.overridesNearClip = a, () => !(owner is PlanarReflectionProbeEditor));
+            area.Add(p.farClipPlane, farClipPlaneContent, () => p.overridesFarClip, a => p.overridesFarClip = a, () => !(owner is PlanarReflectionProbeEditor));
+            
             if (p.projection.enumValueIndex == (int)CameraProjection.Perspective)
             {
-                area.Add(p.fieldOfview, fieldOfviewContent, () => p.overridesFieldOfview, a => p.overridesFieldOfview = a);
+                area.Add(p.fieldOfview, fieldOfViewContent, () => p.overridesFieldOfview, a => p.overridesFieldOfview = a, () => (owner is PlanarReflectionProbeEditor), defaultValue: (owner is PlanarReflectionProbeEditor) ? fieldOfViewDefault : null, forceOverride: true);
             }
             else
             {
