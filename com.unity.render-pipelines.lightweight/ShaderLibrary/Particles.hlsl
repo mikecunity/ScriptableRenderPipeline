@@ -254,7 +254,7 @@ void InitializeInputData(VaryingsParticle input, half3 normalTS, out InputData o
 #else
     output.normalWS = input.normal;
 #endif
-    output.normalWS = FragmentNormalWS(output.normalWS);
+    output.normalWS = NormalizeNormalPerPixel(output.normalWS);
 
     output.viewDirectionWS = FragmentViewDirWS(input.viewDirShininess.xyz);
     output.shadowCoord = float4(0, 0, 0, 0);

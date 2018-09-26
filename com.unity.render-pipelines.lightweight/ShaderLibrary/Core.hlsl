@@ -114,7 +114,7 @@ real3 UnpackNormalScale(real4 packedNormal, real bumpScale)
 #endif
 }
 
-real3 FragmentNormalWS(real3 normal)
+real3 NormalizeNormalPerPixel(real3 normal)
 {
 #if !SHADER_HINT_NICE_QUALITY
     // World normal is already normalized in vertex. Small acceptable error to save ALU.

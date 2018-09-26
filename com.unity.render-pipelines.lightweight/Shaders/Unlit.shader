@@ -127,7 +127,7 @@ Shader "Lightweight Render Pipeline/Unlit"
     #else
                 half3 normalWS = input.normal;
     #endif
-                normalWS = FragmentNormalWS(normalWS);
+                normalWS = NormalizeNormalPerPixel(normalWS);
                 color *= SAMPLE_GI(input.lightmapUV, input.vertexSH, normalWS);
 #endif
                 color = MixFog(color, input.uv0AndFogCoord.z);

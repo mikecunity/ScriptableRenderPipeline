@@ -70,7 +70,7 @@ void InitializeInputData(VertexOutput IN, half3 normalTS, out InputData input)
     input.normalWS = IN.normal;
 #endif
 
-    input.normalWS = FragmentNormalWS(input.normalWS);
+    input.normalWS = NormalizeNormalPerPixel(input.normalWS);
 
     input.viewDirectionWS = FragmentViewDirWS(viewDir);
 #ifdef _MAIN_LIGHT_SHADOWS

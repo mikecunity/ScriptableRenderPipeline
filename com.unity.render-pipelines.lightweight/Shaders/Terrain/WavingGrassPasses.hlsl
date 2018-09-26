@@ -41,7 +41,7 @@ void InitializeInputData(GrassVertexOutput input, out InputData inputData)
     inputData.positionWS = input.posWSShininess.xyz;
 
     half3 viewDir = input.viewDir;
-    inputData.normalWS = FragmentNormalWS(input.normal);
+    inputData.normalWS = NormalizeNormalPerPixel(input.normal);
 
     inputData.viewDirectionWS = FragmentViewDirWS(viewDir);
 #ifdef _MAIN_LIGHT_SHADOWS

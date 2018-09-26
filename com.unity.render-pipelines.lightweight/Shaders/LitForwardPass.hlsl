@@ -59,7 +59,7 @@ void InitializeInputData(Varyings input, half3 normalTS, out InputData inputData
     inputData.normalWS = input.normalWS;
 #endif
 
-    inputData.normalWS = FragmentNormalWS(inputData.normalWS);
+    inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
 
     inputData.viewDirectionWS = FragmentViewDirWS(viewDirWS);
 #if defined(_MAIN_LIGHT_SHADOWS) && !defined(_RECEIVE_SHADOWS_OFF)
