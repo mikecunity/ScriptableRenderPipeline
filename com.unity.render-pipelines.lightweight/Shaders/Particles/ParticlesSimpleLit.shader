@@ -96,6 +96,10 @@ Shader "Lightweight Render Pipeline/Particles/Simple Lit"
                     , input.tangent
 #endif
                 );
+                half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+#if !SHADER_HINT_NICE_QUALITY
+                viewDirWS = SafeNormalize(viewDirWS);
+#endif
 
                 output.normal = normalInput.normalWS;
 #ifdef _NORMALMAP
@@ -106,8 +110,7 @@ Shader "Lightweight Render Pipeline/Particles/Simple Lit"
                 output.posWS.xyz = vertexInput.positionWS.xyz;
                 output.posWS.w = ComputeFogFactor(vertexInput.positionCS.z);
                 output.clipPos = vertexInput.positionCS;
-                output.viewDirShininess.xyz = VertexViewDirWS(GetCameraPositionWS() - vertexInput.positionWS);
-                output.viewDirShininess.w = _Shininess * 128.0h;
+                output.viewDirShininess = half4(viewDirWS, _Shininess * 128.0h);
                 output.color = input.color;
 
                 // TODO: Instancing

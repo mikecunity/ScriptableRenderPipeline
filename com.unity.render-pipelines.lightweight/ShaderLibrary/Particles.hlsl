@@ -247,6 +247,11 @@ half3 AlphaModulate(half3 albedo, half alpha)
 
 void InitializeInputData(VaryingsParticle input, half3 normalTS, out InputData output)
 {
+    half3 viewDirWS = input.viewDirShininess.xyz;
+#if SHADER_HINT_NICE_QUALITY
+    viewDirWS = SafeNormalize(viewDirWS);
+#endif
+
     output.positionWS = input.posWS.xyz;
 
 #if _NORMALMAP
@@ -256,7 +261,7 @@ void InitializeInputData(VaryingsParticle input, half3 normalTS, out InputData o
 #endif
     output.normalWS = NormalizeNormalPerPixel(output.normalWS);
 
-    output.viewDirectionWS = FragmentViewDirWS(input.viewDirShininess.xyz);
+    output.viewDirectionWS = viewDirWS;
     output.shadowCoord = float4(0, 0, 0, 0);
     output.fogCoord = (half)input.posWS.w;
     output.vertexLighting = half3(0.0h, 0.0h, 0.0h);

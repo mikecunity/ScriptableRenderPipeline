@@ -45,17 +45,21 @@ void InitializeInputData(Varyings input, half3 normalTS, out InputData inputData
     inputData.positionWS = input.posWSShininess.xyz;
 
 #ifdef _NORMALMAP
-    half3 viewDir = half3(input.normal.w, input.tangent.w, input.bitangent.w);
+    half3 viewDirWS = half3(input.normal.w, input.tangent.w, input.bitangent.w);
     inputData.normalWS = TransformTangentToWorld(normalTS,
         half3x3(input.tangent.xyz, input.bitangent.xyz, input.normal.xyz));
 #else
-    half3 viewDir = input.viewDir;
+    half3 viewDirWS = input.viewDir;
     inputData.normalWS = input.normal;
+#endif
+
+#if SHADER_HINT_NICE_QUALITY
+    viewDirWS = SafeNormalize(viewDirWS);
 #endif
 
     inputData.normalWS = NormalizeNormalPerPixel(inputData.normalWS);
 
-    inputData.viewDirectionWS = FragmentViewDirWS(viewDir);
+    inputData.viewDirectionWS = viewDirWS;
 #if defined(_MAIN_LIGHT_SHADOWS) && !defined(_RECEIVE_SHADOWS_OFF)
     inputData.shadowCoord = input.shadowCoord;
 #else
@@ -81,7 +85,12 @@ Varyings LitPassVertexSimple(Attributes input)
 
     VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
     VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
-    half3 viewDir = VertexViewDirWS(GetCameraPositionWS() - vertexInput.positionWS);
+    half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+
+#if !SHADER_HINT_NICE_QUALITY
+    viewDirWS = SafeNormalize(viewDirWS);
+#endif
+
     half3 vertexLight = VertexLighting(vertexInput.positionWS, output.normal.xyz);
     half fogFactor = ComputeFogFactor(vertexInput.positionCS.z);
 
@@ -91,12 +100,12 @@ Varyings LitPassVertexSimple(Attributes input)
     output.positionCS = vertexInput.positionCS;
 
 #ifdef _NORMALMAP
-    output.normal = half4(normalInput.normalWS, viewDir.x);
-    output.tangent = half4(normalInput.tangentWS, viewDir.y);
-    output.bitangent = half4(normalInput.bitangentWS, viewDir.z);
+    output.normal = half4(normalInput.normalWS, viewDirWS.x);
+    output.tangent = half4(normalInput.tangentWS, viewDirWS.y);
+    output.bitangent = half4(normalInput.bitangentWS, viewDirWS.z);
 #else
     output.normal = normalInput.normalWS;
-    output.viewDir = viewDir;
+    output.viewDir = viewDirWS;
 #endif
 
     OUTPUT_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);

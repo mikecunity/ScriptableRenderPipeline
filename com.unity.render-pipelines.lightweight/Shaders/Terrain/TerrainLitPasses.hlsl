@@ -57,22 +57,26 @@ void InitializeInputData(VertexOutput IN, half3 normalTS, out InputData input)
     input.positionWS = IN.positionWS;
 
 #if defined(_NORMALMAP) && !defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
-    half3 viewDir = half3(IN.normal.w, IN.tangent.w, IN.bitangent.w);
+    half3 viewDirWS = half3(IN.normal.w, IN.tangent.w, IN.bitangent.w);
     input.normalWS = TransformTangentToWorld(normalTS, half3x3(IN.tangent.xyz, IN.bitangent.xyz, IN.normal.xyz));
 #elif defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
-    half3 viewDir = IN.viewDir;
+    half3 viewDirWS = IN.viewDir;
     float2 sampleCoords = (IN.uvMainAndLM.xy / _TerrainHeightmapRecipSize.zw + 0.5f) * _TerrainHeightmapRecipSize.xy;
     half3 normalWS = TransformObjectToWorldNormal(normalize(SAMPLE_TEXTURE2D(_TerrainNormalmapTexture, sampler_TerrainNormalmapTexture, sampleCoords).rgb * 2 - 1));
     half3 tangentWS = cross(GetObjectToWorldMatrix()._13_23_33, normalWS);
     input.normalWS = TransformTangentToWorld(normalTS, half3x3(tangentWS, cross(normalWS, tangentWS), normalWS));
 #else
-    half3 viewDir = IN.viewDir;
+    half3 viewDirWS = IN.viewDir;
     input.normalWS = IN.normal;
+#endif
+
+#if SHADER_HINT_NICE_QUALITY
+    viewDirWS = SafeNormalize(viewDirWS);
 #endif
 
     input.normalWS = NormalizeNormalPerPixel(input.normalWS);
 
-    input.viewDirectionWS = FragmentViewDirWS(viewDir);
+    input.viewDirectionWS = viewDirWS;
 #ifdef _MAIN_LIGHT_SHADOWS
     input.shadowCoord = IN.shadowCoord;
 #else
@@ -181,18 +185,21 @@ VertexOutput SplatmapVert(VertexInput v)
     o.uvSplat23.zw = TRANSFORM_TEX(v.texcoord, _Splat3);
 #endif
 
-    half3 viewDir = VertexViewDirWS(GetCameraPositionWS() - vertexInput.positionWS);
+    half3 viewDirWS = GetCameraPositionWS() - vertexInput.positionWS;
+#if !SHADER_HINT_NICE_QUALITY
+    viewDirWS = SafeNormalize(viewDirWS);
+#endif
 
 #if defined(_NORMALMAP) && !defined(ENABLE_TERRAIN_PERPIXEL_NORMAL)
     float4 vertexTangent = float4(cross(float3(0, 0, 1), v.normal), 1.0);
     VertexNormalInputs normalInput = GetVertexNormalInputs(v.normal, vertexTangent);
 
-    o.normal = half4(normalInput.normalWS, viewDir.x);
-    o.tangent = half4(normalInput.tangentWS, viewDir.y);
-    o.bitangent = half4(normalInput.bitangentWS, viewDir.z);
+    o.normal = half4(normalInput.normalWS, viewDirWS.x);
+    o.tangent = half4(normalInput.tangentWS, viewDirWS.y);
+    o.bitangent = half4(normalInput.bitangentWS, viewDirWS.z);
 #else
     o.normal = TransformObjectToWorldNormal(v.normal);
-    o.viewDir = viewDir;
+    o.viewDir = viewDirWS;
 #endif
     o.fogFactorAndVertexLight.x = ComputeFogFactor(vertexInput.positionCS.z);
     o.fogFactorAndVertexLight.yzw = VertexLighting(vertexInput.positionWS, o.normal.xyz);

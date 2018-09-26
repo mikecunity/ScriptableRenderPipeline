@@ -124,26 +124,6 @@ real3 NormalizeNormalPerPixel(real3 normal)
 #endif
 }
 
-real3 FragmentViewDirWS(real3 viewDir)
-{
-#if !SHADER_HINT_NICE_QUALITY
-    // View direction is already normalized in vertex. Small acceptable error to save ALU.
-    return viewDir;
-#else
-    return SafeNormalize(viewDir);
-#endif
-}
-
-real3 VertexViewDirWS(real3 viewDir)
-{
-#if !SHADER_HINT_NICE_QUALITY
-    // Normalize in vertex and avoid renormalizing it in frag to save ALU.
-    return SafeNormalize(viewDir);
-#else
-    return viewDir;
-#endif
-}
-
 // TODO: A similar function should be already available in SRP lib on master. Use that instead
 float4 ComputeScreenPos(float4 positionCS)
 {

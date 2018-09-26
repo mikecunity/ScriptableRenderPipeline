@@ -40,10 +40,14 @@ void InitializeInputData(GrassVertexOutput input, out InputData inputData)
 {
     inputData.positionWS = input.posWSShininess.xyz;
 
-    half3 viewDir = input.viewDir;
+    half3 viewDirWS = input.viewDir;
+#if SHADER_HINT_NICE_QUALITY
+    viewDirWS = SafeNormalize(viewDirWS);
+#endif
+
     inputData.normalWS = NormalizeNormalPerPixel(input.normal);
 
-    inputData.viewDirectionWS = FragmentViewDirWS(viewDir);
+    inputData.viewDirectionWS = viewDirWS;
 #ifdef _MAIN_LIGHT_SHADOWS
     inputData.shadowCoord = input.shadowCoord;
 #else
@@ -63,7 +67,12 @@ void InitializeVertData(GrassVertexInput input, inout GrassVertexOutput vertData
     vertData.posWSShininess.w = 32;
     vertData.clipPos = vertexInput.positionCS;
 
-    vertData.viewDir = VertexViewDirWS(GetCameraPositionWS() - vertexInput.positionWS);
+    vertData.viewDir = GetCameraPositionWS() - vertexInput.positionWS;
+
+#if !SHADER_QUALITY_NICE_HINT
+    vertData.viewDir = SafeNormalize(vertData.viewDir);
+#endif
+
     vertData.normal = TransformObjectToWorldNormal(input.normal);
 
     // We either sample GI from lightmap or SH.
